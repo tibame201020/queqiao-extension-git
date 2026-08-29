@@ -1,0 +1,387 @@
+{
+  "name": "@queqiao/extension-git",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "exports": "./dist/index.js",
+  "files": [
+    "dist/index.js"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepack": "npm run build",
+    "test": "vitest run src/package-contract.test.ts"
+  },
+  "dependencies": {
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@tibame201020/queqiao": "file:../Queqiao",
+    "@types/node": "^24.10.0",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10"
+  },
+  "queqiao": {
+    "apiVersion": 1,
+    "module": "./dist/index.js",
+    "manifest": {
+      "id": "dev.queqiao.git",
+      "version": "1.0.0",
+      "displayName": "Queqiao Git",
+      "host": {
+        "kind": "worker"
+      },
+      "ordering": {
+        "requires": [],
+        "before": [],
+        "after": []
+      },
+      "contributions": [
+        {
+          "operation": "register",
+          "tool": "git_repositories",
+          "visibility": "public",
+          "title": "Discover Git repositories",
+          "description": "Discover bounded Git repositories and contained worktrees inside one authorized Workspace.",
+          "inputSchema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object",
+            "properties": {
+              "workspaceId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "path": {
+                "default": ".",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "depth": {
+                "default": 4,
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              },
+              "limit": {
+                "default": 50,
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              }
+            },
+            "required": [
+              "workspaceId"
+            ]
+          },
+          "requiredCapabilities": [
+            "workspace:read",
+            "workspace:exec"
+          ],
+          "risk": "read",
+          "annotations": {
+            "readOnlyHint": true,
+            "destructiveHint": false,
+            "openWorldHint": false,
+            "idempotentHint": true
+          }
+        },
+        {
+          "operation": "register",
+          "tool": "git_status",
+          "visibility": "public",
+          "title": "Git status",
+          "description": "Read bounded porcelain-v2 status for a contained Git repository or worktree.",
+          "inputSchema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object",
+            "properties": {
+              "workspaceId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "repositoryPath": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              }
+            },
+            "required": [
+              "workspaceId",
+              "repositoryPath"
+            ]
+          },
+          "requiredCapabilities": [
+            "workspace:exec"
+          ],
+          "risk": "read",
+          "annotations": {
+            "readOnlyHint": true,
+            "destructiveHint": false,
+            "openWorldHint": false,
+            "idempotentHint": true
+          }
+        },
+        {
+          "operation": "register",
+          "tool": "git_diff",
+          "visibility": "public",
+          "title": "Git diff",
+          "description": "Read a bounded Git diff from a contained repository without external diff helpers.",
+          "inputSchema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object",
+            "properties": {
+              "workspaceId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "repositoryPath": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "staged": {
+                "default": false,
+                "type": "boolean"
+              },
+              "contextLines": {
+                "default": 3,
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 20
+              },
+              "paths": {
+                "default": [],
+                "maxItems": 32,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                }
+              }
+            },
+            "required": [
+              "workspaceId",
+              "repositoryPath"
+            ]
+          },
+          "requiredCapabilities": [
+            "workspace:exec"
+          ],
+          "risk": "read",
+          "annotations": {
+            "readOnlyHint": true,
+            "destructiveHint": false,
+            "openWorldHint": false,
+            "idempotentHint": true
+          }
+        },
+        {
+          "operation": "register",
+          "tool": "git_log",
+          "visibility": "public",
+          "title": "Git log",
+          "description": "Read bounded commit metadata from a contained Git repository.",
+          "inputSchema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object",
+            "properties": {
+              "workspaceId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "repositoryPath": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "ref": {
+                "default": "HEAD",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^(?!-)[A-Za-z0-9._/@{}~^:+-]+$"
+              },
+              "limit": {
+                "default": 20,
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              }
+            },
+            "required": [
+              "workspaceId",
+              "repositoryPath"
+            ]
+          },
+          "requiredCapabilities": [
+            "workspace:exec"
+          ],
+          "risk": "read",
+          "annotations": {
+            "readOnlyHint": true,
+            "destructiveHint": false,
+            "openWorldHint": false,
+            "idempotentHint": true
+          }
+        },
+        {
+          "operation": "register",
+          "tool": "git_branches",
+          "visibility": "public",
+          "title": "Git branches",
+          "description": "List bounded local branches for a contained Git repository.",
+          "inputSchema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object",
+            "properties": {
+              "workspaceId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "repositoryPath": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "limit": {
+                "default": 100,
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 200
+              }
+            },
+            "required": [
+              "workspaceId",
+              "repositoryPath"
+            ]
+          },
+          "requiredCapabilities": [
+            "workspace:exec"
+          ],
+          "risk": "read",
+          "annotations": {
+            "readOnlyHint": true,
+            "destructiveHint": false,
+            "openWorldHint": false,
+            "idempotentHint": true
+          }
+        },
+        {
+          "operation": "register",
+          "tool": "git_worktree_create",
+          "visibility": "public",
+          "title": "Create Git worktree",
+          "description": "Create one contained Git worktree under an authorized coding Workspace.",
+          "inputSchema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object",
+            "properties": {
+              "workspaceId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "repositoryPath": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "targetPath": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "ref": {
+                "default": "HEAD",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^(?!-)[A-Za-z0-9._/@{}~^:+-]+$"
+              },
+              "newBranch": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^(?!-)[A-Za-z0-9._/@{}~^:+-]+$"
+              }
+            },
+            "required": [
+              "workspaceId",
+              "repositoryPath",
+              "targetPath"
+            ]
+          },
+          "requiredCapabilities": [
+            "workspace:read",
+            "workspace:write",
+            "workspace:exec"
+          ],
+          "risk": "write",
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false,
+            "idempotentHint": false
+          }
+        },
+        {
+          "operation": "register",
+          "tool": "git_worktree_remove",
+          "visibility": "public",
+          "title": "Remove Git worktree",
+          "description": "Remove one contained Git worktree belonging to the selected repository.",
+          "inputSchema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object",
+            "properties": {
+              "workspaceId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "repositoryPath": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "targetPath": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "force": {
+                "default": false,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "workspaceId",
+              "repositoryPath",
+              "targetPath"
+            ]
+          },
+          "requiredCapabilities": [
+            "workspace:read",
+            "workspace:write",
+            "workspace:exec"
+          ],
+          "risk": "write",
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": true,
+            "openWorldHint": false,
+            "idempotentHint": false
+          }
+        }
+      ]
+    }
+  }
+}
