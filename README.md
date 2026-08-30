@@ -1,5 +1,7 @@
 # Queqiao Git Extension
 
+[English](https://github.com/tibame201020/queqiao-extension-git/blob/main/README.md) | [繁體中文](https://github.com/tibame201020/queqiao-extension-git/blob/main/README.zh-TW.md)
+
 First-party Git extension for [Queqiao](https://github.com/tibame201020/Queqiao).
 
 The npm package is `@tibame201020/queqiao-extension-git`. Its stable Queqiao extension identity is `dev.queqiao.git`.
